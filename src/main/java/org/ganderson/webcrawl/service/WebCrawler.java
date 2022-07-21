@@ -2,8 +2,13 @@ package org.ganderson.webcrawl.service;
 
 import lombok.RequiredArgsConstructor;
 import org.ganderson.webcrawl.Scrapers.PageScraper;
+import org.ganderson.webcrawl.Scrapers.PageVisitQueue;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 
 import java.net.URL;
+import java.util.List;
+import java.util.Optional;
 
 /**
  *
@@ -11,15 +16,38 @@ import java.net.URL;
 @RequiredArgsConstructor
 public class WebCrawler {
     private PageScraper pageScraper;
+    private PageVisitQueue queue = new PageVisitQueue();
 
-    public void crawl(URL url) throws Exception {
-        // Get web content
-//        Document doc = Jsoup.connect("https://en.wikipedia.org/").get();
+    private URL url;
 
-//        this.pageScraper.scrapeForLinks()
+    public WebCrawler(URL url) {
+        this.pageScraper = new PageScraper(url);
+        this.url = url;
+    }
 
-        // GEt
+    public void crawl() throws Exception {
+        this.queue.offer(url);
 
-//        throw new UnsupportedOperationException();
+        while (true) {
+            Optional<URL> next = this.queue.poll();
+
+            if (!next.isPresent()) {
+                return;
+            }
+
+            //
+            URL nextValue = next.get();
+            Document doc = Jsoup.connect(next.get().toString()).get();
+
+            System.out.println(nextValue);
+
+            this.pageScraper.scrapeForLinks(doc)
+                            .forEach(link -> {
+                                System.out.println("- " + link);
+                                this.queue.offer(link);
+                            });
+        }
+
+
     }
 }
