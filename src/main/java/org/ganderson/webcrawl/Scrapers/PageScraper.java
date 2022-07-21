@@ -6,7 +6,6 @@ import org.apache.logging.log4j.Logger;
 import org.jsoup.nodes.Element;
 
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URL;
 import java.util.List;
 
@@ -14,7 +13,6 @@ import java.util.List;
  * Scrapes a weblink for a
  */
 public class PageScraper {
-
 
     private static final Logger logger = LogManager.getLogger(PageScraper.class);
     private final URL baseDomain;
