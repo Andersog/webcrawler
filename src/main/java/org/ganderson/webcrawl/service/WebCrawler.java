@@ -17,21 +17,20 @@ import java.util.function.Function;
 /**
  *
  */
-@RequiredArgsConstructor
 public class WebCrawler {
     private static final Logger logger = LogManager.getLogger(WebCrawler.class);
     private final PageScraper pageScraper;
     private final NonDuplicateQueue queue = new NonDuplicateQueue();
 
     private final Function<URL, Optional<Document>> getDocument;
-    private URL url;
+    private final URL url;
 
     /**
      * @param scraper The page scraper for getting links on pages.
      * @param getDocument Supplier for a document from a provided URL.
      * @param url The base url of our crawler.
      */
-    WebCrawler(PageScraper scraper, Function<URL, Optional<Document>> getDocument, URL url) {
+    public WebCrawler(PageScraper scraper, Function<URL, Optional<Document>> getDocument, URL url) {
         this.getDocument = getDocument;
         this.pageScraper = scraper;
         this.url = url;
