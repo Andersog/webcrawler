@@ -43,6 +43,7 @@ public class PageScraper {
                     return null;
                 }
             })
+            .distinct()
             .nonNull()
             .toList();
     }

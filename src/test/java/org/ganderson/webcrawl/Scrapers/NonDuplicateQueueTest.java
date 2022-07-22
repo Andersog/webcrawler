@@ -9,13 +9,15 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * Test suite for PageVisitQueue
+ * Test suite for NonDuplicateQueue
  */
-@DisplayName("Test suite for PageVisitQueue")
-public class PageVisitQueueTest {
+@DisplayName("Test suite for NonDuplicateQueue")
+public class NonDuplicateQueueTest {
 
     @DisplayName("When offer called")
     @Nested
@@ -28,15 +30,14 @@ public class PageVisitQueueTest {
         public void givenNewValue_OfferQueuesPage() throws Exception {
             // Given
             URL unvisitedUrl = new URL("http://some-value/");
-            PageVisitQueue cacheUnderTest = new PageVisitQueue();
+            NonDuplicateQueue cacheUnderTest = new NonDuplicateQueue();
 
             // When
             cacheUnderTest.offer(unvisitedUrl);
 
             // Then
-            Optional<URL> polledValue = cacheUnderTest.poll();
-            assertTrue(polledValue.isPresent());
-            assertEquals(unvisitedUrl, polledValue.get());
+            URL polledValue = cacheUnderTest.poll();
+            assertEquals(unvisitedUrl, polledValue);
         }
 
         @Test
@@ -46,7 +47,7 @@ public class PageVisitQueueTest {
         public void givenVisitedValue_OfferDoesNotQueuePage() throws Exception {
             // Given
             URL unvisitedUrl = new URL("http://some-value/");
-            PageVisitQueue cacheUnderTest = new PageVisitQueue();
+            NonDuplicateQueue cacheUnderTest = new NonDuplicateQueue();
 
             // The page has previously been visited
             cacheUnderTest.offer(unvisitedUrl);
@@ -58,7 +59,7 @@ public class PageVisitQueueTest {
             cacheUnderTest.offer(unvisitedUrl);
 
             // Then
-            assertFalse(cacheUnderTest.poll().isPresent());
+            assertNull(cacheUnderTest.poll());
         }
 
         @Test
@@ -69,7 +70,7 @@ public class PageVisitQueueTest {
         public void givenVisitedValueAndCurrentlyInQueue_OfferDoesNotQueuePage() throws Exception {
             // Given
             URL unvisitedUrl = new URL("http://some-value/");
-            PageVisitQueue cacheUnderTest = new PageVisitQueue();
+            NonDuplicateQueue cacheUnderTest = new NonDuplicateQueue();
 
             // The page has previously been visited
             cacheUnderTest.offer(unvisitedUrl);
@@ -78,8 +79,46 @@ public class PageVisitQueueTest {
             cacheUnderTest.offer(unvisitedUrl);
 
             // Then
-            assertTrue(cacheUnderTest.poll().isPresent());
-            assertFalse(cacheUnderTest.poll().isPresent());
+            assertNotNull(cacheUnderTest.poll());
+            assertNull(cacheUnderTest.poll());
+        }
+    }
+
+    @DisplayName("When isEmpty called")
+    @Nested
+    public class IsEmptyTest {
+        @Test
+        @DisplayName(
+            "Given no value enqueued"
+                + " Then true returned")
+        public void givenNoQueuedValue_FalseReturned() throws Exception {
+
+            // Given
+            // No enqueued value
+            NonDuplicateQueue cacheUnderTest = new NonDuplicateQueue();
+
+            // When
+            boolean result = cacheUnderTest.isEmpty();
+
+            // Then
+            assertTrue(result);
+        }
+
+        @Test
+        @DisplayName(
+            "Given value enqueued"
+                + " Then false returned")
+        public void givenQueuedValue_FalseReturned() throws Exception {
+
+            // Given
+            NonDuplicateQueue cacheUnderTest = new NonDuplicateQueue();
+            cacheUnderTest.offer(new URL("http://www.google.com"));
+
+            // When
+            boolean result = cacheUnderTest.isEmpty();
+
+            // Then
+            assertFalse(result);
         }
     }
 
@@ -90,17 +129,17 @@ public class PageVisitQueueTest {
         @Test
         @DisplayName(
             "Given no value enqueued"
-                + " Then empty is returned")
+                + " Then null is returned")
         public void givenNoQueuedValue_ReturnsEmpty() throws Exception {
             // Given
             // No enqueued value
-            PageVisitQueue cacheUnderTest = new PageVisitQueue();
+            NonDuplicateQueue cacheUnderTest = new NonDuplicateQueue();
 
             // When
-            Optional<URL> result = cacheUnderTest.poll();
+            URL result = cacheUnderTest.poll();
 
             // Then
-            assertFalse(result.isPresent());
+            assertNull(result);
         }
 
         @Test
@@ -109,17 +148,16 @@ public class PageVisitQueueTest {
                 + " Then an optional with the value is returned")
         public void givenQueuedValue_ReturnsThatValue() throws Exception {
             // Given
-            PageVisitQueue cacheUnderTest = new PageVisitQueue();
+            NonDuplicateQueue cacheUnderTest = new NonDuplicateQueue();
 
             URL urlOfInterest = new URL("http://some-value/");
             cacheUnderTest.offer(new URL("http://some-value/"));
 
             // When
-            Optional<URL> result = cacheUnderTest.poll();
+            URL result = cacheUnderTest.poll();
 
             // Then
-            assertTrue(result.isPresent());
-            assertEquals(urlOfInterest, result.get());
+            assertEquals(urlOfInterest, result);
         }
 
         @Test
@@ -128,14 +166,14 @@ public class PageVisitQueueTest {
                 + " Then the value is removed from the queue")
         public void givenQueuedValue_ValueDequeud() throws Exception {
             // Given
-            PageVisitQueue cacheUnderTest = new PageVisitQueue();
+            NonDuplicateQueue cacheUnderTest = new NonDuplicateQueue();
             cacheUnderTest.offer(new URL("http://some-value/"));
 
             // When
             cacheUnderTest.poll();
 
             // Then
-            assertFalse(cacheUnderTest.poll().isPresent());
+            assertNull(cacheUnderTest.poll());
         }
 
         @Test
@@ -144,7 +182,7 @@ public class PageVisitQueueTest {
                 + " Then the values are removed from the queue on equal polls")
         public void givenMultipleQueuedValues_ValueDequeud() throws Exception {
             // Given
-            PageVisitQueue cacheUnderTest = new PageVisitQueue();
+            NonDuplicateQueue cacheUnderTest = new NonDuplicateQueue();
             cacheUnderTest.offer(new URL("http://some-value/"));
             cacheUnderTest.offer(new URL("http://some-other-value/"));
 
@@ -153,7 +191,7 @@ public class PageVisitQueueTest {
             cacheUnderTest.poll();
 
             // Then
-            assertFalse(cacheUnderTest.poll().isPresent());
+            assertNull(cacheUnderTest.poll());
         }
     }
 
@@ -166,24 +204,32 @@ public class PageVisitQueueTest {
         @DisplayName(
             "End to end test for various functionality")
         public void endToEndTest() throws Exception {
-            PageVisitQueue cacheUnderTest = new PageVisitQueue();
+            NonDuplicateQueue cacheUnderTest = new NonDuplicateQueue();
 
             URL urlA = new URL("http://some-value/");
             URL urlB = new URL("http://some-value/a");
             URL urlC = new URL("http://some-value/a/b/");
 
+            assertTrue(cacheUnderTest.isEmpty());
+
             cacheUnderTest.offer(urlA);
             cacheUnderTest.offer(urlB);
 
-            assertEquals(urlA, cacheUnderTest.poll().get());
-            assertEquals(urlB, cacheUnderTest.poll().get());
+            assertFalse(cacheUnderTest.isEmpty());
+
+            assertEquals(urlA, cacheUnderTest.poll());
+            assertEquals(urlB, cacheUnderTest.poll());
 
             cacheUnderTest.offer(urlA);
             cacheUnderTest.offer(urlC);
 
-            assertEquals(urlC, cacheUnderTest.poll().get());
+            assertEquals(urlC, cacheUnderTest.poll());
 
-            assertFalse(cacheUnderTest.poll().isPresent());
+            assertTrue(cacheUnderTest.isEmpty());
+
+            assertNull(cacheUnderTest.poll());
+
+            assertTrue(cacheUnderTest.isEmpty());
         }
     }
 }

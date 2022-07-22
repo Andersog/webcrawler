@@ -7,9 +7,9 @@ import java.util.Optional;
 import java.util.Set;
 
 /**
- * Simple queue wrapper, will only enqueue pages which we haven't already visited.
+ * Simple queue wrapper, will only enqueue URLs which are new to the queue.
  */
-public class PageVisitQueue {
+public class NonDuplicateQueue {
 
     private final LinkedList<URL> internalQueue = new LinkedList<>();
     private final Set<String> cache = new HashSet<>();
@@ -29,11 +29,20 @@ public class PageVisitQueue {
     }
 
     /**
+     * Checks if this queue is empty.
+     *
+     * @return True if the queue is empty, else false.
+     */
+    public boolean isEmpty(){
+        return this.internalQueue.size() == 0;
+    }
+
+    /**
      * Polls the queue, de-queuing as we go.
      *
      * @return Empty if the queue is empty, otherwise the next page to visit.
      */
-    public Optional<URL> poll() {
-        return Optional.ofNullable(internalQueue.poll());
+    public URL poll() {
+        return internalQueue.poll();
     }
 }

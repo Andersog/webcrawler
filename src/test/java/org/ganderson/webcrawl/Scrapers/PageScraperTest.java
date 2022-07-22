@@ -24,6 +24,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -32,6 +33,7 @@ import java.net.URL;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -61,7 +63,7 @@ public class PageScraperTest {
                 // Given
                 URL base = new URL("http://my-domain.com");
 
-                Element element = buildAnchorWithReference(offDomainLink, base);
+                Element element = buildAnchorWithReferences(base, offDomainLink);
 
                 PageScraper scraperUnderTest = new PageScraper(base);
 
@@ -88,7 +90,7 @@ public class PageScraperTest {
                 URL base = new URL("http://my-domain.com");
                 URL absoluteLink = new URL(base, linkToTest);
 
-                Element element = buildAnchorWithReference(absoluteLink.toString(), base);
+                Element element = buildAnchorWithReferences(base, absoluteLink.toString());
 
                 PageScraper scraperUnderTest = new PageScraper(base);
 
@@ -97,6 +99,28 @@ public class PageScraperTest {
 
                 // Then
                 assertContainsOnly(absoluteLink.toString(), results);
+            }
+
+            @DisplayName(
+                "Given multiple links which are duplicates"
+                    + " Then only a single value is returned")
+            @Test
+            public void givenValidDuplicateRelativeLinks_IgnoredDuplicates() throws
+                Exception {
+                // Given
+                URL base = new URL("http://my-domain.com/sub-folder/");
+                URL currentPage = new URL("http://my-domain.com/sub-folder/");
+
+                String absoluteLink = "http://my-domain.com/sub-folder/another-value";
+                Element element = buildAnchorWithReferences(currentPage, absoluteLink, absoluteLink);
+
+                PageScraper scraperUnderTest = new PageScraper(base);
+
+                // When
+                List<URL> results = scraperUnderTest.scrapeForLinks(element);
+
+                // Then
+                assertContainsOnly(absoluteLink, results);
             }
         }
 
@@ -125,7 +149,7 @@ public class PageScraperTest {
                 // A current page which is also at the root of our domain
                 URL currentPage = new URL("http://my-domain.com");
 
-                Element element = buildAnchorWithReference(relativeLink, currentPage);
+                Element element = buildAnchorWithReferences(currentPage, relativeLink);
 
                 PageScraper scraperUnderTest = new PageScraper(base);
 
@@ -156,7 +180,7 @@ public class PageScraperTest {
                 // A current page which is also at the root of our domain
                 URL currentPage = new URL("http://my-domain.com/sub-a/sub-b/");
 
-                Element element = buildAnchorWithReference(relativeLink, currentPage);
+                Element element = buildAnchorWithReferences(currentPage, relativeLink);
 
                 PageScraper scraperUnderTest = new PageScraper(base);
 
@@ -188,7 +212,7 @@ public class PageScraperTest {
                 // A page which is also a sub-folder
                 URL currentPage = new URL("http://my-domain.com/sub-folder/");
 
-                Element element = buildAnchorWithReference(relativeLink, currentPage);
+                Element element = buildAnchorWithReferences(currentPage, relativeLink);
                 PageScraper scraperUnderTest = new PageScraper(base);
 
                 // When
@@ -197,12 +221,74 @@ public class PageScraperTest {
                 // Then
                 assertTrue(results.isEmpty());
             }
+
+            @DisplayName(
+                "Given multiple relative paths which are duplicates"
+                    + " Then only a single value is returned")
+            @Test
+            public void givenValidDuplicateRelativeLinks_IgnoredDuplicates() throws
+                Exception {
+                // Given
+                URL base = new URL("http://my-domain.com/sub-folder/");
+                URL currentPage = new URL("http://my-domain.com/sub-folder/");
+
+                String relativeLink = "./test";
+                Element element = buildAnchorWithReferences(currentPage, relativeLink, relativeLink);
+
+                PageScraper scraperUnderTest = new PageScraper(base);
+
+                // When
+                List<URL> results = scraperUnderTest.scrapeForLinks(element);
+
+                // Then
+                assertContainsOnly("http://my-domain.com/sub-folder/test", results);
+            }
         }
 
+        @DisplayName("End to end functional tests")
         @Nested
-        @DisplayName("Integration test.")
-        public class IntegrationTests {
-            // TODO
+        public class EndToEndTest {
+
+            @Test
+            @DisplayName(
+                "End to end test for various functionality")
+            public void endToEndTest() throws Exception {
+                // Given
+                URL base = new URL("http://my-domain.com/a/");
+                URL currentPage = new URL("http://my-domain.com/a/b/c");
+
+                Element element = buildAnchorWithReferences(
+                    currentPage,
+                    // Some valid relative times
+                    "./valid-relative",
+
+                    // Duplicate
+                    "../valid-directory-up",
+                    "../valid-directory-up",
+
+                    // Some values which will move us out of the base domain
+                    "../../invalid-directory-up",
+                    "/invalid-root",
+
+                    // Invalid absolute
+                    "http://my-domain.com/an-absolute-value",
+                    "http://other-domain.com/an-absolute-value",
+
+                    // Valid but duplicate absolute URLS
+                    "http://my-domain.com/a/an-absolute-value",
+                    "http://my-domain.com/a/an-absolute-value");
+
+                PageScraper scraperUnderTest = new PageScraper(base);
+
+                // When
+                List<URL> results = scraperUnderTest.scrapeForLinks(element);
+
+                // Then
+                assertEquals(3, results.size());
+                assertTrue(results.contains(new URL("http://my-domain.com/a/b/valid-relative")));
+                assertTrue(results.contains(new URL("http://my-domain.com/a/valid-directory-up")));
+                assertTrue(results.contains(new URL("http://my-domain.com/a/an-absolute-value")));
+            }
         }
     }
 
@@ -219,12 +305,40 @@ public class PageScraperTest {
     }
 
     /**
-     * Builds an HTML anchor with the provided href.
+     * Builds an HTML document with anchors using the provided href.
      *
-     * @param reference The href.
      * @param baseUrl The base URL of the 'page'.
+     * @param references The hrefs to use.
      */
-    private Element buildAnchorWithReference(String reference, URL baseUrl) {
-        return Jsoup.parseBodyFragment("<div><a href=\"" + reference + "\"/><div>", baseUrl.toString());
+    private Element buildAnchorWithReferences(URL baseUrl, String... references) {
+
+        StringBuilder builder = new StringBuilder();
+
+        // Example header tag
+        builder.append("<html lang=\"en-us\">\n" +
+                           "   <head>\n" +
+                           "      <script type=\"text/javascript\" async=\"\" src=\"//j.6sc.co/6si.min" +
+                           ".js\"></script>\n" +
+                           "      <meta property=\"og:description\" content=\"Cloud-hosted MongoDB service on " +
+                           "AWS, " +
+                           "Azure, and GCP\">\n" +
+                           "      <link rel=\"shortcut icon\" href=\"/assets/images/global/favicon.ico\">\n" +
+                           "      <link rel=\"stylesheet\" href=\"https://styles.css\">\n" +
+                           "      <script type=\"text/javascript\" src=\"https://a-script\"></script>\n" +
+                           "   </head>");
+
+        builder.append("<body>");
+
+        for (String reference : references) {
+            builder.append("<div><a href=\"");
+            builder.append(reference);
+            builder.append("\"/><div>");
+        }
+
+        builder.append("</body>");
+        builder.append("</html>");
+
+
+        return Jsoup.parse(builder.toString(), baseUrl.toString());
     }
 }
