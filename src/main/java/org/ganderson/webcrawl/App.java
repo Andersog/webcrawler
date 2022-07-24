@@ -13,8 +13,8 @@ public class App {
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-        System.out.println("Please enter the full URL that you want to crawl (e.g. https://monzo.com) or q to quit");
         while (true) {
+            System.out.println("Please enter the full URL that you want to crawl (e.g. https://monzo.com) or q to quit");
             String value = scanner.nextLine();
             if ("q".equals(value)) {
                 return;
@@ -26,6 +26,8 @@ public class App {
             } catch (MalformedURLException ex) {
                 System.out.println("The provided URL was not valid, please be sure to provide the full path including the protocol (http://monzo.com instead of monzo.com)");
             }
+
+            System.out.println("Finished crawling");
         }
     }
 }
