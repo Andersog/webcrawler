@@ -1,26 +1,5 @@
-/*
- * ------------------------------------------------------------------------
- *
- * <copyright file="PageScraperTest.java" company="Smarter Grid Solutions">
- * Copyright (c) 2022 Smarter Grid Solutions. All rights reserved.
- * </copyright>
- *
- *                  This file is the property of:
- *
- *                     Smarter Grid Solutions
- *               http://www.smartergridsolutions.com
- *
- *  This Source Code and the associated elementation contain proprietary
- *  information of Smarter Grid Solutions and may not be copied or
- *  distributed in any form without the written permission of Smarter Grid
- *  Solutions.
- *
- * ------------------------------------------------------------------------
- */
-
 package org.ganderson.webcrawl.Scrapers;
 
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -34,11 +13,10 @@ import java.util.List;
 
 import static org.ganderson.webcrawl.HtmlTestUtils.buildAnchorWithReferences;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- *
+ * Tests for {@link PageScraper}
  */
 @DisplayName("Test suite for PageScraper")
 public class PageScraperTest {

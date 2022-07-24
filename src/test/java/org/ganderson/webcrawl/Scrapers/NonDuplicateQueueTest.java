@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.net.URL;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -14,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * Test suite for NonDuplicateQueue
+ * Test suite for {@link NonDuplicateQueue}.
  */
 @DisplayName("Test suite for NonDuplicateQueue")
 public class NonDuplicateQueueTest {
@@ -210,26 +209,33 @@ public class NonDuplicateQueueTest {
             URL urlB = new URL("http://some-value/a");
             URL urlC = new URL("http://some-value/a/b/");
 
+            // The queue is initially empty
             assertTrue(cacheUnderTest.isEmpty());
 
+            // Offer two unique values
             cacheUnderTest.offer(urlA);
             cacheUnderTest.offer(urlB);
 
+            // The queue now contains these two values
             assertFalse(cacheUnderTest.isEmpty());
-
             assertEquals(urlA, cacheUnderTest.poll());
             assertEquals(urlB, cacheUnderTest.poll());
 
-            cacheUnderTest.offer(urlA);
+            // After polling both it's empty again
+            assertTrue(cacheUnderTest.isEmpty());
+
+            // Offer a unique value
             cacheUnderTest.offer(urlC);
 
+            // And a value which was previously queued
+            cacheUnderTest.offer(urlA);
+
+            // Polling the unique value should leave the queue empty
             assertEquals(urlC, cacheUnderTest.poll());
-
             assertTrue(cacheUnderTest.isEmpty());
 
+            // Finally polling on an empty queue returns null
             assertNull(cacheUnderTest.poll());
-
-            assertTrue(cacheUnderTest.isEmpty());
         }
     }
 }
