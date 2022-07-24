@@ -1,4 +1,4 @@
-package org.ganderson.webcrawl.Scrapers;
+package org.ganderson.webcrawl.service;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

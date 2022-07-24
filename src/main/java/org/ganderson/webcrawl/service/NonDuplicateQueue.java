@@ -1,9 +1,8 @@
-package org.ganderson.webcrawl.Scrapers;
+package org.ganderson.webcrawl.service;
 
 import java.net.URL;
 import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -33,7 +32,7 @@ public class NonDuplicateQueue {
      *
      * @return True if the queue is empty, else false.
      */
-    public boolean isEmpty(){
+    public boolean isEmpty() {
         return this.internalQueue.size() == 0;
     }
 

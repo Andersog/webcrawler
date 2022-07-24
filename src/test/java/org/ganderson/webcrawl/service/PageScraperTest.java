@@ -1,4 +1,4 @@
-package org.ganderson.webcrawl.Scrapers;
+package org.ganderson.webcrawl.service;
 
 import org.jsoup.nodes.Element;
 import org.junit.jupiter.api.DisplayName;
@@ -10,6 +10,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 import java.net.URL;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.ganderson.webcrawl.HtmlTestUtils.buildAnchorWithReferences;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -47,7 +48,7 @@ public class PageScraperTest {
                 PageScraper scraperUnderTest = new PageScraper(base);
 
                 // When
-                List<URL> results = scraperUnderTest.scrapeForLinks(element);
+                List<URL> results = scraperUnderTest.scrapeForLinks(element).collect(Collectors.toList());
 
                 // Then
                 assertTrue(results.isEmpty());
@@ -74,7 +75,7 @@ public class PageScraperTest {
                 PageScraper scraperUnderTest = new PageScraper(base);
 
                 // When
-                List<URL> results = scraperUnderTest.scrapeForLinks(element);
+                List<URL> results = scraperUnderTest.scrapeForLinks(element).collect(Collectors.toList());
 
                 // Then
                 assertContainsOnly(absoluteLink.toString(), results);
@@ -96,7 +97,7 @@ public class PageScraperTest {
                 PageScraper scraperUnderTest = new PageScraper(base);
 
                 // When
-                List<URL> results = scraperUnderTest.scrapeForLinks(element);
+                List<URL> results = scraperUnderTest.scrapeForLinks(element).collect(Collectors.toList());
 
                 // Then
                 assertContainsOnly(absoluteLink, results);
@@ -133,7 +134,7 @@ public class PageScraperTest {
                 PageScraper scraperUnderTest = new PageScraper(base);
 
                 // When
-                List<URL> results = scraperUnderTest.scrapeForLinks(element);
+                List<URL> results = scraperUnderTest.scrapeForLinks(element).collect(Collectors.toList());
 
                 // Then
                 assertContainsOnly(currentPage + expectedSubDomain, results);
@@ -164,7 +165,7 @@ public class PageScraperTest {
                 PageScraper scraperUnderTest = new PageScraper(base);
 
                 // When
-                List<URL> results = scraperUnderTest.scrapeForLinks(element);
+                List<URL> results = scraperUnderTest.scrapeForLinks(element).collect(Collectors.toList());
 
                 // Then
                 assertContainsOnly(base + expectedSubDomain, results);
@@ -195,7 +196,7 @@ public class PageScraperTest {
                 PageScraper scraperUnderTest = new PageScraper(base);
 
                 // When
-                List<URL> results = scraperUnderTest.scrapeForLinks(element);
+                List<URL> results = scraperUnderTest.scrapeForLinks(element).collect(Collectors.toList());
 
                 // Then
                 assertTrue(results.isEmpty());
@@ -217,7 +218,7 @@ public class PageScraperTest {
                 PageScraper scraperUnderTest = new PageScraper(base);
 
                 // When
-                List<URL> results = scraperUnderTest.scrapeForLinks(element);
+                List<URL> results = scraperUnderTest.scrapeForLinks(element).collect(Collectors.toList());
 
                 // Then
                 assertContainsOnly("http://my-domain.com/sub-folder/test", results);
@@ -260,7 +261,7 @@ public class PageScraperTest {
                 PageScraper scraperUnderTest = new PageScraper(base);
 
                 // When
-                List<URL> results = scraperUnderTest.scrapeForLinks(element);
+                List<URL> results = scraperUnderTest.scrapeForLinks(element).collect(Collectors.toList());
 
                 // Then
                 assertEquals(3, results.size());

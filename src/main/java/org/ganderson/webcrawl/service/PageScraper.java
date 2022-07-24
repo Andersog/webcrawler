@@ -1,20 +1,22 @@
-package org.ganderson.webcrawl.Scrapers;
+package org.ganderson.webcrawl.service;
 
 import one.util.streamex.StreamEx;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.jsoup.nodes.Element;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.List;
+import java.util.stream.Stream;
 
 /**
- * Scrapes a weblink for a
+ * Given a base domain, provides functionality for scraping the HTML of a web page and identifying any links which
+ * are contained within this domain.
  */
 public class PageScraper {
 
-    private static final Logger logger = LogManager.getLogger(PageScraper.class);
+    private static final Logger logger = LoggerFactory.getLogger(PageScraper.class);
     private final URL baseDomain;
 
     /**
@@ -25,16 +27,16 @@ public class PageScraper {
     }
 
     /**
-     * Scrapes the page for links which are on the supplied base domain.
+     * Scrapes the page for any links which are matched to the provided base domain for this instance.
      *
      * @param document The document to scrape.
-     * @return The list of links which we've discovered on the page, filtered to those only on the base domain.
+     * @return The stream of links which we've discovered on the page, filtered to those only on the base domain.
      */
-    public List<URL> scrapeForLinks(Element document) {
+    public Stream<URL> scrapeForLinks(Element document) {
         return StreamEx
             .of(document.select("a[href]"))
             .map(hyperlink -> hyperlink.absUrl("href"))
-            .filter(url -> url.startsWith(this.baseDomain.toString()))
+            .filter(rawUrl -> rawUrl.startsWith(this.baseDomain.toString()))
             .map(rawUrl -> {
                 try {
                     return new URL(rawUrl);
@@ -44,8 +46,7 @@ public class PageScraper {
                 }
             })
             .distinct()
-            .nonNull()
-            .toList();
+            .nonNull();
     }
 }
 

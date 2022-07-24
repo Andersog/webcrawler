@@ -1,27 +1,23 @@
 package org.ganderson.webcrawl.service;
 
-import lombok.RequiredArgsConstructor;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.ganderson.webcrawl.Scrapers.NonDuplicateQueue;
-import org.ganderson.webcrawl.Scrapers.PageScraper;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
-import javax.print.Doc;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Optional;
 import java.util.function.Function;
 
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
+
 /**
- *
+ * Crawls a domain for all pages on that domain and the links contained on each page.
  */
 public class WebCrawler {
-    private static final Logger logger = LogManager.getLogger(WebCrawler.class);
+    private static final Logger logger = LoggerFactory.getLogger(WebCrawler.class);
     private final PageScraper pageScraper;
     private final NonDuplicateQueue queue = new NonDuplicateQueue();
-
     private final Function<URL, Optional<Document>> getDocument;
     private final URL url;
 
@@ -48,7 +44,6 @@ public class WebCrawler {
      * Crawl from our base page and print all links encountered.
      */
     public void crawl() {
-
         this.queue.offer(url);
         while (!this.queue.isEmpty()) {
 
@@ -72,7 +67,7 @@ public class WebCrawler {
         try {
             return Optional.of(Jsoup.connect(url.toString()).get());
         } catch (IOException ex) {
-            logger.warn("Non HTML page encountered.");
+            logger.warn("Non HTML page encountered [{}].", url);
             return Optional.empty();
         }
     }

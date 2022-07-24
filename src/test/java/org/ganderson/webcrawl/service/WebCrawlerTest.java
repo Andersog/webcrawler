@@ -1,7 +1,5 @@
-package org.ganderson.webcrawl;
+package org.ganderson.webcrawl.service;
 
-import org.ganderson.webcrawl.Scrapers.PageScraper;
-import org.ganderson.webcrawl.service.WebCrawler;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
