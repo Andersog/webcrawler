@@ -8,7 +8,12 @@ The project is written in java 8 and uses maven for dependency management, so to
  
 - Install your favourite 8+ JDK e.g. [Liberica](https://bell-sw.com/pages/downloads/#mn)
 - Install and setup [Maven](https://maven.apache.org/install.html)
-- Checkout the and navigate to the source directory and run `mvn exec:java`
+- Checkout the and navigate to the source directory and run 
+```
+mvn package
+mvn exec:java
+```
+
 
 Once running the console will provide further instructions
 
