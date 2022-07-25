@@ -11,7 +11,7 @@ import java.util.Set;
 public class NonDuplicateQueue {
 
     private final LinkedList<URL> internalQueue = new LinkedList<>();
-    private final Set<String> cache = new HashSet<>();
+    private final Set<String> visitedPages = new HashSet<>();
 
     /**
      * Offers a new page to the queue.
@@ -19,11 +19,11 @@ public class NonDuplicateQueue {
      * @param pageUrl The URL of the page we're offering.
      */
     public void offer(URL pageUrl) {
-        if (cache.contains(pageUrl.toString())) {
+        if (visitedPages.contains(pageUrl.toString())) {
             return;
         }
 
-        this.cache.add(pageUrl.toString());
+        this.visitedPages.add(pageUrl.toString());
         this.internalQueue.offer(pageUrl);
     }
 

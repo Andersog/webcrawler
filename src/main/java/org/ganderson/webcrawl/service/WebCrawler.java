@@ -6,42 +6,46 @@ import org.jsoup.nodes.Document;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Optional;
-import java.util.function.Function;
 
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 
 /**
  * Crawls a domain for all pages on that domain and the links contained on each page.
+ *
+ * <p>
+ * Any links contained on the crawled pages which do not match the base domain will be ignored
+ * </p>
  */
 public class WebCrawler {
     private static final Logger logger = LoggerFactory.getLogger(WebCrawler.class);
     private final PageScraper pageScraper;
     private final NonDuplicateQueue queue = new NonDuplicateQueue();
-    private final Function<URL, Optional<Document>> getDocument;
+    private final DocumentParser documentParser;
     private final URL url;
 
     /**
      * @param scraper The page scraper for getting links on pages.
-     * @param getDocument Supplier for a document from a provided URL.
-     * @param url The base url of our crawler.
+     * @param documentParser The parser which will source our web pages and parse the HTML.
+     * @param url The base url which the crawler will search links for.
      */
-    public WebCrawler(PageScraper scraper, Function<URL, Optional<Document>> getDocument, URL url) {
-        this.getDocument = getDocument;
+    WebCrawler(PageScraper scraper, DocumentParser documentParser, URL url) {
+        this.documentParser = documentParser;
         this.pageScraper = scraper;
         this.url = url;
-
     }
 
     /**
-     * @param url The base url of our crawler.
+     * Creates a new instance, using the default document parser and page scraper.
+     *
+     * @param url The base url which the crawler will search links for.
      */
     public WebCrawler(URL url) {
         this(new PageScraper(url), WebCrawler::defaultGetDocument, url);
     }
 
     /**
-     * Crawl from our base page and print all links encountered.
+     * Crawl from our base page and print all links encountered to system out.
      */
     public void crawl() {
         this.queue.offer(url);
@@ -50,10 +54,12 @@ public class WebCrawler {
             URL next = this.queue.poll();
             System.out.println(next);
 
-            this.getDocument.apply(next).ifPresent(doc -> this.pageScraper.scrapeForLinks(doc).forEach(link -> {
-                System.out.println("- " + link);
-                this.queue.offer(link);
-            }));
+            this.documentParser
+                .parseDocument(next)
+                .ifPresent(doc -> this.pageScraper.scrapeForLinks(doc).forEach(link -> {
+                    System.out.println("- " + link);
+                    this.queue.offer(link);
+                }));
         }
     }
 
@@ -70,5 +76,18 @@ public class WebCrawler {
             logger.warn("Non HTML page encountered [{}].", url);
             return Optional.empty();
         }
+    }
+
+    /**
+     * A parser which will locate a document at a given URL and parse the HTML found at the location.
+     */
+    public interface DocumentParser {
+        /**
+         * Parses the document at the provided URL.
+         *
+         * @param url The URL to source the document from.
+         * @return The parsed document, or empty if the document could not be parsed.
+         */
+        Optional<Document> parseDocument(URL url);
     }
 }

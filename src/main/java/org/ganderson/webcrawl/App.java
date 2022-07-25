@@ -15,6 +15,7 @@ public class App {
         Scanner scanner = new Scanner(System.in);
         while (true) {
             System.out.println("Please enter the full URL that you want to crawl (e.g. https://monzo.com) or q to quit");
+
             String value = scanner.nextLine();
             if ("q".equals(value)) {
                 return;
