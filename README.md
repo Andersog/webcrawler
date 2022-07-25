@@ -1,6 +1,8 @@
 # Webcrawler
 
-This project performs very simple webcrawling. On startup, provide a base domain and it will crawl that page for links, recursively checking each that it find and outputting each the value on the console. Pages which are off domain will be ignored and those which appear multiple times on the same page are only printed once. 
+This project performs very simple webcrawling. 
+On startup, provide a base domain and it will crawl that page for links, recursively checking each that it find and outputting to console. 
+Pages which are off domain will be ignored and those which appear multiple times on the same page are only printed once. 
 
 ## Setup
  
@@ -15,19 +17,19 @@ mvn exec:java
 ```
 
 
-Once running the console will provide further instructions
+Once the app is running, the console will provide further instructions.
 
 ## Approach
 
-The program uses a simple Breadth-first approach to identifying links and visiting them.
-As this tasked was time-boxed to < 4 hours, I decided that I would prioritise testing of the functionality:  
+The program uses a simple breadth-first approach to identify links and visit them.
+As this tasked was time-boxed to < 4 hours, I decided that I would prioritise testing the functionality of:  
 
-- Scraping html for page links which match the domain
-- Tracking pages which have been visited, and which to visit next
+- scraping html for links which match a provided domain
+- tracking pages which have been visited, and which to visit next 
 
 Once I was confident that this functionality was working, the logic required to connect things should be relatively simple and could be covered by some 
 E2E style testing.
 
-On the other side, this did mean some compromises and limitations were made:
+A couple of compromises and limitations were made:
 - The crawler will only pick up links which are on the html, any dynamically generated content will not be read.  
-- It's possible we could improve performance if we enabled some multi-threading on the Webcrawler, but I chose to keep the service small in scope and simple to be more confident of the functionality.
+- It's possible we could improve performance if we enabled some multi-threading on the Webcrawler, but I chose to keep the service small in scope and simple to be more confident of the functionality. 
