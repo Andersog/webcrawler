@@ -27,5 +27,5 @@ jobs:
     - name: Archive production artifacts
       uses: actions/upload-artifact@v3
       with:
-        name: output-jar
+        name: webcrawler.jar
         path: target/*.jar
